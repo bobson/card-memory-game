@@ -1,31 +1,20 @@
+//   *********** Game State *************
 let board = document.querySelector(".board");
+let level = 1;
 let cards = 8;
 let icons = [];
 let flippedCards = [];
-let atempts = 0;
-let timer = 90;
+let attempts = 0;
+let time = 20;
+let timer;
+let wins = 0;
+let allCards = [];
+//  ****************************************
 
-let timeLeft = document.querySelector(".timer");
-timeLeft.innerHTML = `Time left: ${timer} s`;
-
-function renderTimer() {
-  var startTimer = setInterval(function () {
-    timer--;
-    timeLeft.innerHTML = `Time left: ${timer} s`;
-  }, 1000);
-}
-
-function renderAtempts() {
-  var h3 = document.querySelector(".atempts");
-
-  h3.innerHTML = `Atempts: ${atempts}`;
-}
-
+//        ******** Game start ********
 generateIconsArr();
 
-renderCards(cards);
-
-let allCards = document.querySelectorAll(".card");
+renderBoard();
 
 function generateIconsArr() {
   for (let i = 0; i < cards / 2; i++) {
@@ -33,61 +22,20 @@ function generateIconsArr() {
   }
   icons = icons.concat(icons);
 }
+//  *********************************
 
-function flipCard() {
-  this.removeEventListener("click", flipCard);
-  allCards.forEach((card) => card.removeEventListener("click", startTimer));
-  flippedCards.push(this);
-  this.classList.add("flipped");
-
-  if (flippedCards.length == 2) {
-    checkCards();
-  }
+//  ********  UI rendering functions  ********
+function renderTimer() {
+  let timeLeft = document.querySelector(".timer");
+  timeLeft.innerHTML = `Time left: ${time} s`;
 }
 
-function addClickToAll() {
-  var allNotFlipped = document.querySelectorAll(".card:not(.flipped)");
-  allNotFlipped.forEach((card) => {
-    card.addEventListener("click", flipCard);
-  });
+function renderAttempts() {
+  var h3 = document.querySelector(".attempts");
+  h3.innerHTML = `attempts: ${attempts}`;
 }
 
-function checkCards() {
-  stopAllClicks();
-  atempts++;
-  renderAtempts();
-  var back1 = flippedCards[0].querySelector(".back");
-  var back2 = flippedCards[1].querySelector(".back");
-  if (back1.innerHTML == back2.innerHTML) {
-    flippedCards = [];
-    addClickToAll();
-    console.log("pogodok");
-  } else {
-    console.log("promasaj");
-    setTimeout(function resetCards() {
-      flippedCards.forEach((card) => card.classList.remove("flipped"));
-      flippedCards = [];
-      addClickToAll();
-    }, 1000);
-  }
-}
-
-function stopAllClicks() {
-  allCards.forEach((card) => card.removeEventListener("click", flipCard));
-}
-
-function renderCards(cards) {
-  renderAtempts();
-  var boardMaxWidth = Math.floor(window.innerWidth * 0.6);
-  var cols = Math.ceil(Math.sqrt(cards));
-  var colWidth = Math.ceil(boardMaxWidth / cols);
-
-  //   while (cards % cols !== 0) {
-  //     cols--;
-  //   }
-
-  board.style.gridTemplateColumns = `repeat(${cols}, ${colWidth}px)`;
-
+function renderCards() {
   for (let i = 0; i < cards; i++) {
     let random = Math.floor(Math.random() * icons.length);
 
@@ -115,6 +63,102 @@ function renderCards(cards) {
   }
 }
 
-function startTimer() {
+function renderBoard() {
+  board.innerHTML = "";
   renderTimer();
+  renderAttempts();
+  renderCards();
+  var boardMaxWidth = Math.floor(window.innerWidth * 0.6);
+  var cols = Math.ceil(Math.sqrt(cards));
+  var colWidth = Math.ceil(boardMaxWidth / cols);
+
+  //   while (cards % cols !== 0) {
+  //     cols--;
+  //   }
+
+  board.style.gridTemplateColumns = `repeat(${cols}, ${colWidth}px)`;
+
+  allCards = document.querySelectorAll(".card");
 }
+//  ************************************************
+
+//   ************  Game Logic  *************
+function resetGame() {
+  disableAllClicks();
+  clearInterval(timer);
+  timer = null;
+  attempts = 0;
+  icons = [];
+  flippedCards = [];
+  time = 20;
+  wins = 0;
+  generateIconsArr();
+  renderBoard();
+}
+
+function disableAllClicks() {
+  allCards.forEach((card) => {
+    card.removeEventListener("click", flipCard);
+    card.removeEventListener("click", startTimer);
+  });
+}
+
+function flipCard() {
+  if (flippedCards.length >= 2) return;
+
+  this.removeEventListener("click", flipCard);
+  allCards.forEach((card) => card.removeEventListener("click", startTimer));
+  flippedCards.push(this);
+  this.classList.add("flipped");
+
+  if (flippedCards.length == 2) {
+    disableAllClicks();
+    checkCards();
+  }
+}
+
+function addClickToAll() {
+  var allNotFlipped = document.querySelectorAll(".card:not(.flipped)");
+  allNotFlipped.forEach((card) => {
+    card.addEventListener("click", flipCard);
+  });
+}
+
+function checkCards() {
+  disableAllClicks();
+  attempts++;
+  renderAttempts();
+  var img1 = flippedCards[0].querySelector("img").src;
+  var img2 = flippedCards[1].querySelector("img").src;
+  if (img1 == img2) {
+    flippedCards = [];
+    wins++;
+    addClickToAll();
+    if (wins == cards / 2) {
+      setTimeout(() => {
+        alert(`Level ${level} Pass`);
+        resetGame();
+        level++;
+      }, 100);
+    }
+  } else {
+    setTimeout(function resetCards() {
+      flippedCards.forEach((card) => card.classList.remove("flipped"));
+      flippedCards = [];
+      addClickToAll();
+    }, 1000);
+  }
+}
+
+function startTimer() {
+  if (timer) return;
+  timer = setInterval(function () {
+    time--;
+    renderTimer();
+    if (time === 0) {
+      alert("Time's up! Game over!!!");
+      resetGame();
+    }
+  }, 1000);
+}
+// ************************************************
