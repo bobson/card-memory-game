@@ -4,27 +4,72 @@
     box-sizing: border-box;
 }
 
+:root {
+    --main-color: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    --clr-orange: linear-gradient(135deg, #b76e50, #d38c62);
+}
+
 body {
-    display: flex;
-    justify-content: center;
-    background: #1e1e1e;
+    background-color: #1e1e1e;
     font-family: 'Arial', sans-serif;
-
 }
 
-.score {
-    color: white
+.level select {
+    background-color: transparent;
+    border: none;
+    color: #0891b2;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
 }
+
+.score-board {
+    margin: 15px auto;
+    border-collapse: collapse;
+    max-width: 280px;
+    width: 80%;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.score-board th {
+    background: var(--main-color);
+    color: white;
+    padding: 2px 4px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85em;
+    letter-spacing: 0.3px;
+}
+
+.score-board td {
+    padding: 2px 4px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #0891b2;
+    background-color: #f0f9fb;
+}
+
+
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 30px auto;
+    color: aliceblue;
+    gap: 4px;
+    /* max-width: 600px; */
+}
+
 
 .board {
     display: grid;
-    margin-top: 100px;
-    gap: 2px;
+    margin-top: 30px;
     max-width: 80vw;
-    max-height: 70vw;
-
     justify-content: center;
-
+    gap: 5px;
 }
 
 .card {
@@ -33,6 +78,8 @@ body {
     cursor: pointer;
     border-radius: 10px;
     font-size: clamp(12px, 3vw, 32px);
+    max-width: 100px;
+    min-width: clamp(20px, 8vw, 100px);
 }
 
 .back,
@@ -52,7 +99,7 @@ body {
 
 
 .back {
-    background: linear-gradient(135deg, #b76e50, #d38c62);
+    background: var(--clr-orange);
     transform: perspective(900px) rotateY(-180deg);
 }
 
@@ -65,7 +112,7 @@ body {
 }
 
 .front {
-    background: #ffffff;
+    background: var(--main-color);
     color: #1e1e1e
 }
 
