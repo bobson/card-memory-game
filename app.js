@@ -1,6 +1,6 @@
 //   *********** Game State *************
 let board = document.querySelector(".board");
-let select = document.getElementById("levelSelect");
+let selectLevel = document.getElementById("levelSelect");
 let level = 1;
 let cards = level * 4;
 let icons = [];
@@ -10,6 +10,7 @@ let time = level * 20;
 let timer = null;
 let match = 0;
 let allCards = [];
+let notification = false;
 
 //  ****************************************
 
@@ -33,12 +34,12 @@ function generateLevelSelect() {
     let option = document.createElement("option");
     option.value = i;
     option.innerHTML = i;
-    select.appendChild(option);
+    selectLevel.appendChild(option);
   }
 }
 
 function getSelectedLevel() {
-  select.addEventListener("change", function () {
+  selectLevel.addEventListener("change", function () {
     level = parseInt(this.value);
     resetGame();
   });
@@ -55,9 +56,9 @@ function renderMoves() {
 }
 
 function renderLevel() {
-  var currentLevel = select.selectedIndex + 1;
+  var currentLevel = selectLevel.selectedIndex + 1;
   if (currentLevel != level) {
-    select.selectedIndex = level - 1;
+    selectLevel.selectedIndex = level - 1;
   }
 }
 
@@ -174,6 +175,7 @@ function handleMatch() {
   flippedCards = [];
   match++;
   time += 5;
+  notification = true;
   addClickToAll();
   if (match == cards / 2) {
     alert(`Level ${level} Pass`);
@@ -187,6 +189,7 @@ function handleMatch() {
 }
 
 function handleMismatch() {
+  notification = false;
   setTimeout(() => {
     flippedCards.forEach((card) => card.classList.remove("flipped"));
     flippedCards = [];
@@ -196,13 +199,27 @@ function handleMismatch() {
 
 function startTimer() {
   if (timer) return;
+  time--;
+
   timer = setInterval(function () {
-    time--;
+    handleNotification();
     renderTimer();
+    time--;
     if (time === 0) {
       alert("Time's up! Game over!!!");
       resetGame();
     }
   }, 1000);
+}
+
+function handleNotification() {
+  let timeText = document.querySelector(".timer");
+  if (notification && !timeText.classList.contains("win")) {
+    timeText.classList.add("win");
+    notification = false;
+  } else {
+    timeText.classList.remove("win");
+    notification = false;
+  }
 }
 // ************************************************
